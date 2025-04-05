@@ -5,109 +5,129 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GoFlow Maps</title>
     <link rel="icon" type="image/png" href="ticon.png">
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-    <!-- Leaflet CSS -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-    <!-- Leaflet Control Geocoder CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
-    <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
-    <!-- Custom CSS -->
     <link rel="stylesheet" href="styles.css">
-    <style>
-        body {
-            font-family: 'Poppins', sans-serif;
-        }
-    </style>
 </head>
 <body>
-    <div class="container">
-        <button class="panel-toggle" id="panelToggle">
+    <div class="app-container">
+        <button class="menu-toggle" id="menuToggle">
             <i class="fas fa-bars"></i>
         </button>
-        <div class="left-panel" id="leftPanel">
-            <h2 id="Name"><i class="fas fa-route"></i> GoFlow Maps</h2>
-            
-            <!-- Search Bar for Start Location -->
-            <div class="search">
-                <input type="text" id="searchStartInput" placeholder="Enter start location...">
-                <button onclick="searchStartLocation()"><i class="fas fa-search"></i></button>
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <i class="fas fa-route logo-icon"></i>
+                <h1 class="app-title">GoFlow Maps</h1>
+                <button class="close-sidebar" id="closeSidebar">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
-            
-            <!-- Search Bar for Destination Location -->
-            <div class="search">
-                <input type="text" id="searchEndInput" placeholder="Enter destination...">
-                <button onclick="searchEndLocation()"><i class="fas fa-search"></i></button>
+            <div class="location-inputs">
+                <div class="input-field">
+                    <div class="input-icon"><i class="fas fa-map-marker-alt"></i></div>
+                    <input type="text" id="searchStartInput" placeholder="Start location">
+                    <button class="action-btn" onclick="searchStartLocation()"><i class="fas fa-search"></i></button>
+                </div>
+                <div class="input-field">
+                    <div class="input-icon"><i class="fas fa-flag-checkered"></i></div>
+                    <input type="text" id="searchEndInput" placeholder="Destination">
+                    <button class="action-btn" onclick="searchEndLocation()"><i class="fas fa-search"></i></button>
+                </div>
+                <div class="map-controls">
+                    <button class="control-btn" onclick="setStart()"><i class="fas fa-map-marker-alt"></i> Set Start</button>
+                    <button class="control-btn" onclick="setEnd()"><i class="fas fa-flag-checkered"></i> Set End</button>
+                    <button class="route-btn" onclick="findRoute()" id="findroute"><i class="fas fa-directions"></i> Find Route</button>
+                </div>
             </div>
-            
-            <div class="controls">
-                <button class="small-btn" onclick="setStart()"><i class="fas fa-map-marker-alt"></i> Set Start</button>
-                <button class="small-btn" onclick="setEnd()"><i class="fas fa-flag-checkered"></i> Set End</button>
-                <button onclick="findRoute()" id="findroute"><i class="fas fa-directions"></i> Find Route</button>
+            <div class="accordion">
+                <div class="accordion-item">
+                    <div class="accordion-header" id="vehicleSettingsHeader">
+                        <i class="fas fa-car"></i> Vehicle Settings
+                        <i class="fas fa-chevron-down toggle-icon"></i>
+                    </div>
+                    <div class="accordion-content" id="vehicleSettings">
+                        <div class="input-grid">
+                            <div class="input-group">
+                                <label><i class="fas fa-tachometer-alt"></i> Speed (km/h)</label>
+                                <input type="number" id="speedInput" placeholder="60">
+                            </div>
+                            <div class="input-group">
+                                <label><i class="fas fa-gas-pump"></i> Mileage (km/l)</label>
+                                <input type="number" id="mileageInput" placeholder="15">
+                            </div>
+                            <div class="input-group">
+                                <label><i class="fas fa-rupee-sign"></i> Fuel Price (₹/l)</label>
+                                <input type="number" id="fuelPriceInput" placeholder="100">
+                            </div>
+                            <div class="input-group">
+                                <label><i class="fas fa-road"></i> Toll Cost (₹/km)</label>
+                                <input type="number" id="tollCostInput" placeholder="1">
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            
-            <div class="inputs">
-                <div class="input-group">
-                    <label><i class="fas fa-tachometer-alt"></i> Speed (km/h):</label>
-                    <input type="number" id="speedInput" placeholder="60">
-                </div>
-                
-                <div class="input-group">
-                    <label><i class="fas fa-gas-pump"></i> Mileage (km/l):</label>
-                    <input type="number" id="mileageInput" placeholder="15">
-                </div>
-                
-                <div class="input-group">
-                    <label><i class="fas fa-rupee-sign"></i> Fuel Price (₹/l):</label>
-                    <input type="number" id="fuelPriceInput" placeholder="100">
-                </div>
-                
-                <div class="input-group">
-                    <label><i class="fas fa-road"></i> Toll Cost (₹/km):</label>
-                    <input type="number" id="tollCostInput" placeholder="1">
-                </div>
+            <div class="recent-searches" id="recentSearches">
+                <h3><i class="fas fa-history"></i> Recent Searches</h3>
+                <ul class="searches-list" id="searchesList">
+                    <!-- Populated dynamically -->
+                </ul>
             </div>
         </div>
-        
-        <!-- Map Container -->
         <div id="map"></div>
-        
-        <!-- Route Info Panel -->
-        <div class="info" id="routeInfo">
-            <div class="info-header">
+        <div class="route-card" id="routeInfo">
+            <div class="route-card-header">
                 <i class="fas fa-info-circle"></i> Route Information
+                <button class="minimize-btn" id="minimizeRouteInfo"><i class="fas fa-chevron-down"></i></button>
             </div>
-            <div class="info-item">
-                <span class="info-label"><i class="fas fa-route"></i> Distance:</span>
-                <span class="info-value" id="distance">N/A</span> km
-            </div>
-            <div class="info-item">
-                <span class="info-label"><i class="fas fa-clock"></i> Time:</span>
-                <span class="info-value" id="time">N/A</span>
-            </div>
-            <div class="info-item">
-                <span class="info-label"><i class="fas fa-gas-pump"></i> Fuel Cost:</span>
-                ₹<span class="info-value" id="fuelCost">N/A</span>
-            </div>
-            <div class="info-item">
-                <span class="info-label"><i class="fas fa-road"></i> Toll Cost:</span>
-                ₹<span class="info-value" id="totalTollCost">N/A</span>
-            </div>
-            <div class="info-item total-cost-item">
-                <span class="info-label"><i class="fas fa-coins"></i> Total Cost:</span>
-                ₹<span class="info-value" id="totalCost">N/A</span>
+            <div class="route-card-body" id="routeCardBody">
+                <div class="route-info-grid">
+                    <div class="info-item">
+                        <div class="info-icon"><i class="fas fa-route"></i></div>
+                        <div class="info-details">
+                            <div class="info-label">Distance</div>
+                            <div class="info-value"><span id="distance">N/A</span> km</div>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-icon"><i class="fas fa-clock"></i></div>
+                        <div class="info-details">
+                            <div class="info-label">Time</div>
+                            <div class="info-value"><span id="time">N/A</span></div>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-icon"><i class="fas fa-gas-pump"></i></div>
+                        <div class="info-details">
+                            <div class="info-label">Fuel Cost</div>
+                            <div class="info-value">₹<span id="fuelCost">N/A</span></div>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-icon"><i class="fas fa-road"></i></div>
+                        <div class="info-details">
+                            <div class="info-label">Toll Cost</div>
+                            <div class="info-value">₹<span id="totalTollCost">N/A</span></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="total-cost">
+                    <div class="total-cost-label"><i class="fas fa-coins"></i> Total Cost</div>
+                    <div class="total-cost-value">₹<span id="totalCost">N/A</span></div>
+                </div>
+                <div class="route-actions">
+                    <button class="action-button" id="shareRoute"><i class="fas fa-share-alt"></i> Share</button>
+                    <button class="action-button" id="saveRoute"><i class="fas fa-bookmark"></i> Save</button>
+                </div>
             </div>
         </div>
     </div>
-    
-    <!-- Leaflet JavaScript -->
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-    <!-- Leaflet Control Geocoder JavaScript -->
     <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
-    <!-- Custom JavaScript -->
     <script src="script.js"></script>
 </body>
 </html>
